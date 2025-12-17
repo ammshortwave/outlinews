@@ -13,7 +13,7 @@ from flask import Flask, render_template_string, request, redirect, url_for, fla
 DOMAIN = "line.yfgfiusustgf.cfd"
 # API Domain (separate from client config domain)
 # Leave empty to use the same domain as admin panel, or set a different domain/URL
-API_DOMAIN = "line.yfgfiusustgf.cfd"  # e.g., "https://api.example.com" or "http://192.168.1.100:5000"
+API_DOMAIN = "line.yfgfiusustgf.cfd:8443"  # e.g., "https://api.example.com" or "http://192.168.1.100:5000"
 # Paths
 CONFIG_FILE = 'config.yaml'
 BINARY_PATH = './outline-ss-server'
@@ -66,7 +66,7 @@ HTML_TEMPLATE = """
 </head>
 <body>
     <h1>🚀 Outline User Manager</h1>
-    
+
     {% with messages = get_flashed_messages() %}
         {% if messages %}
             <div style="background: #fff3cd; padding: 15px; margin-bottom: 20px; border-radius: 4px; border: 1px solid #ffeeba;">
@@ -167,24 +167,10 @@ HTML_TEMPLATE = """
         const API_BASE_URL = '{{ api_base_url }}';
         function copyApiUrl(secret, button) {
             const apiUrl = API_BASE_URL + '/api?key=' + secret;
-            navigator.clipboard.writeText(apiUrl).then(function() {
-                const originalText = button.textContent;
-                button.textContent = '✓ Copied!';
-                button.style.backgroundColor = '#28a745';
-                setTimeout(function() {
-                    button.textContent = originalText;
-                    button.style.backgroundColor = '#6f42c1';
-                }, 2000);
-            }).catch(function(err) {
-                // Fallback for older browsers
-                const textarea = document.createElement('textarea');
-                textarea.value = apiUrl;
-                textarea.style.position = 'fixed';
-                textarea.style.opacity = '0';
-                document.body.appendChild(textarea);
-                textarea.select();
-                try {
-                    document.execCommand('copy');
+
+            // Check if clipboard API is available
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(apiUrl).then(function() {
                     const originalText = button.textContent;
                     button.textContent = '✓ Copied!';
                     button.style.backgroundColor = '#28a745';
@@ -192,11 +178,50 @@ HTML_TEMPLATE = """
                         button.textContent = originalText;
                         button.style.backgroundColor = '#6f42c1';
                     }, 2000);
-                } catch (err) {
-                    alert('Failed to copy. Please copy manually: ' + apiUrl);
+                }).catch(function(err) {
+                    // Fallback if clipboard API fails
+                    fallbackCopy(apiUrl, button);
+                });
+            } else {
+                // Use fallback for browsers without clipboard API
+                fallbackCopy(apiUrl, button);
+            }
+        }
+
+        function fallbackCopy(text, button) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.top = '0';
+            textarea.style.left = '0';
+            textarea.style.width = '2em';
+            textarea.style.height = '2em';
+            textarea.style.padding = '0';
+            textarea.style.border = 'none';
+            textarea.style.outline = 'none';
+            textarea.style.boxShadow = 'none';
+            textarea.style.background = 'transparent';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.focus();
+            textarea.select();
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    const originalText = button.textContent;
+                    button.textContent = '✓ Copied!';
+                    button.style.backgroundColor = '#28a745';
+                    setTimeout(function() {
+                        button.textContent = originalText;
+                        button.style.backgroundColor = '#6f42c1';
+                    }, 2000);
+                } else {
+                    alert('Failed to copy. Please copy manually: ' + text);
                 }
-                document.body.removeChild(textarea);
-            });
+            } catch (err) {
+                alert('Failed to copy. Please copy manually: ' + text);
+            }
+            document.body.removeChild(textarea);
         }
     </script>
 </body>
@@ -287,24 +312,10 @@ CLIENT_TEMPLATE = """
         const API_BASE_URL = '{{ api_base_url }}';
         function copyApiUrl(secret, button) {
             const apiUrl = API_BASE_URL + '/api?key=' + secret;
-            navigator.clipboard.writeText(apiUrl).then(function() {
-                const originalText = button.textContent;
-                button.textContent = '✓ Copied!';
-                button.style.backgroundColor = '#28a745';
-                setTimeout(function() {
-                    button.textContent = originalText;
-                    button.style.backgroundColor = '#6f42c1';
-                }, 2000);
-            }).catch(function(err) {
-                // Fallback for older browsers
-                const textarea = document.createElement('textarea');
-                textarea.value = apiUrl;
-                textarea.style.position = 'fixed';
-                textarea.style.opacity = '0';
-                document.body.appendChild(textarea);
-                textarea.select();
-                try {
-                    document.execCommand('copy');
+
+            // Check if clipboard API is available
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(apiUrl).then(function() {
                     const originalText = button.textContent;
                     button.textContent = '✓ Copied!';
                     button.style.backgroundColor = '#28a745';
@@ -312,34 +323,96 @@ CLIENT_TEMPLATE = """
                         button.textContent = originalText;
                         button.style.backgroundColor = '#6f42c1';
                     }, 2000);
-                } catch (err) {
-                    alert('Failed to copy. Please copy manually: ' + apiUrl);
+                }).catch(function(err) {
+                    // Fallback if clipboard API fails
+                    fallbackCopy(apiUrl, button);
+                });
+            } else {
+                // Use fallback for browsers without clipboard API
+                fallbackCopy(apiUrl, button);
+            }
+        }
+
+        function fallbackCopy(text, button) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.top = '0';
+            textarea.style.left = '0';
+            textarea.style.width = '2em';
+            textarea.style.height = '2em';
+            textarea.style.padding = '0';
+            textarea.style.border = 'none';
+            textarea.style.outline = 'none';
+            textarea.style.boxShadow = 'none';
+            textarea.style.background = 'transparent';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.focus();
+            textarea.select();
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    const originalText = button.textContent;
+                    button.textContent = '✓ Copied!';
+                    button.style.backgroundColor = '#28a745';
+                    setTimeout(function() {
+                        button.textContent = originalText;
+                        button.style.backgroundColor = '#6f42c1';
+                    }, 2000);
+                } else {
+                    alert('Failed to copy. Please copy manually: ' + text);
                 }
-                document.body.removeChild(textarea);
-            });
+            } catch (err) {
+                alert('Failed to copy. Please copy manually: ' + text);
+            }
+            document.body.removeChild(textarea);
         }
 
         function copyYaml() {
             const yamlText = document.querySelector('textarea').value;
-            navigator.clipboard.writeText(yamlText).then(function() {
-                const button = event.target;
-                const originalText = button.textContent;
-                button.textContent = '✓ Copied!';
-                button.style.backgroundColor = '#28a745';
-                setTimeout(function() {
-                    button.textContent = originalText;
-                    button.style.backgroundColor = '#008CBA';
-                }, 2000);
-            }).catch(function(err) {
+
+            // Check if clipboard API is available
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(yamlText).then(function() {
+                    const button = event.target;
+                    const originalText = button.textContent;
+                    button.textContent = '✓ Copied!';
+                    button.style.backgroundColor = '#28a745';
+                    setTimeout(function() {
+                        button.textContent = originalText;
+                        button.style.backgroundColor = '#008CBA';
+                    }, 2000);
+                }).catch(function(err) {
+                    // Fallback if clipboard API fails
+                    const textarea = document.querySelector('textarea');
+                    textarea.select();
+                    try {
+                        const successful = document.execCommand('copy');
+                        if (successful) {
+                            alert('YAML config copied to clipboard!');
+                        } else {
+                            alert('Failed to copy. Please select and copy manually.');
+                        }
+                    } catch (err) {
+                        alert('Failed to copy. Please select and copy manually.');
+                    }
+                });
+            } else {
+                // Use fallback for browsers without clipboard API
                 const textarea = document.querySelector('textarea');
                 textarea.select();
                 try {
-                    document.execCommand('copy');
-                    alert('YAML config copied to clipboard!');
+                    const successful = document.execCommand('copy');
+                    if (successful) {
+                        alert('YAML config copied to clipboard!');
+                    } else {
+                        alert('Failed to copy. Please select and copy manually.');
+                    }
                 } catch (err) {
                     alert('Failed to copy. Please select and copy manually.');
                 }
-            });
+            }
         }
     </script>
 </body>
@@ -352,7 +425,7 @@ def load_config():
     try:
         with open(CONFIG_FILE, 'r') as f:
             config = yaml.safe_load(f)
-        
+
         # Validate config structure
         if not config:
             raise ValueError("Config file is empty")
@@ -361,7 +434,7 @@ def load_config():
         if 'keys' not in config['services'][0]:
             # Initialize keys if missing
             config['services'][0]['keys'] = []
-        
+
         return config
     except FileNotFoundError:
         raise FileNotFoundError(f"Config file '{CONFIG_FILE}' not found")
@@ -395,7 +468,7 @@ def restart_server_process():
     """Restart server with error handling and metrics enabled"""
     try:
         # 1. Kill existing server matching the config
-        subprocess.run(['pkill', '-f', f'-config={CONFIG_FILE}'], 
+        subprocess.run(['pkill', '-f', f'-config={CONFIG_FILE}'],
                       stderr=subprocess.DEVNULL, timeout=5)
         time.sleep(1)
         # 2. Start new server with metrics enabled
@@ -422,7 +495,7 @@ def check_expiration(expire_date_str):
     """Check if a date string is expired. Returns (is_expired, formatted_date)"""
     if not expire_date_str:
         return False, None
-    
+
     try:
         expire_date = datetime.strptime(expire_date_str, '%Y-%m-%d').date()
         today = date.today()
@@ -468,7 +541,7 @@ def get_metrics():
                     if len(parts) >= 2:
                         try:
                             val = float(parts[-1])
-                            
+
                             # Extract access_key ID from the metric line
                             # Format is usually: shadowsocks_data_bytes{access_key="1",direction="down",...} 5000
                             if 'access_key="' in line:
@@ -492,15 +565,15 @@ def index():
     try:
         config = load_config()
         keys = get_keys(config)
-        
+
         # Get search query from URL parameters
         search_query = request.args.get('search', '').strip()
-        
+
         # Filter keys by username if search query is provided
         if search_query:
             search_lower = search_query.lower()
             keys = [key for key in keys if search_lower in key.get('name', '').lower()]
-        
+
         # Add masked secret and expiration status for display
         for key in keys:
             key['secret_masked'] = mask_secret(key.get('secret', ''))
@@ -509,13 +582,13 @@ def index():
             is_expired, formatted_date = check_expiration(expire_date_str)
             key['is_expired'] = is_expired
             key['expire_date'] = formatted_date if formatted_date else expire_date_str
-        
+
         # Get metrics data usage for each user
         stats = get_metrics()
-        
+
         # Determine API base URL
         api_base_url = API_DOMAIN if API_DOMAIN else request.url_root.rstrip('/')
-        
+
         return render_template_string(HTML_TEMPLATE, keys=keys, stats=stats, search_query=search_query, api_base_url=api_base_url)
     except Exception as e:
         flash(f"Error loading config: {e}", "error")
@@ -527,7 +600,7 @@ def add_user():
     try:
         config = load_config()
         keys = get_keys(config)
-        
+
         # Calculate new ID
         new_id = 1
         if keys:
@@ -535,10 +608,10 @@ def add_user():
                 new_id = max(int(k.get('id', 0)) for k in keys) + 1
             except (ValueError, TypeError):
                 new_id = len(keys) + 1
-        
+
         # Get expiration date from form
         expire_date = request.form.get('expire_date', '').strip()
-        
+
         new_user = {
             'id': new_id,
             'name': '',  # Optional name field for admin display
@@ -546,16 +619,16 @@ def add_user():
             'secret': generate_secret(),
             'expire_date': expire_date if expire_date else None
         }
-        
+
         # Remove None values to keep config clean
         if new_user['expire_date'] is None:
             new_user.pop('expire_date', None)
-        
+
         keys.append(new_user)
         set_keys(config, keys)
         save_config(config)
         restart_server_process()
-        
+
         flash(f"User {new_id} added and Server Restarted!")
     except Exception as e:
         flash(f"Error adding user: {e}", "error")
@@ -567,14 +640,14 @@ def edit_user(user_id):
         config = load_config()
         keys = get_keys(config)
         target_key = next((k for k in keys if int(k.get('id', 0)) == user_id), None)
-        
+
         if not target_key:
             flash(f"User {user_id} not found", "error")
             return redirect(url_for('index'))
-        
+
         new_secret = generate_secret()
         expire_date = target_key.get('expire_date', '')
-        return render_template_string(EDIT_TEMPLATE, 
+        return render_template_string(EDIT_TEMPLATE,
                                     user_id=user_id,
                                     name=target_key.get('name', ''),
                                     cipher=target_key.get('cipher', 'chacha20-ietf-poly1305'),
@@ -590,37 +663,37 @@ def update_user(user_id):
     try:
         config = load_config()
         keys = get_keys(config)
-        
+
         target_key = next((k for k in keys if int(k.get('id', 0)) == user_id), None)
         if not target_key:
             flash(f"User {user_id} not found", "error")
             return redirect(url_for('index'))
-        
+
         # Update name, cipher, secret, and expiration date
         name = request.form.get('name', '').strip()
         cipher = request.form.get('cipher', 'chacha20-ietf-poly1305')
         secret = request.form.get('secret', '').strip()
         expire_date = request.form.get('expire_date', '').strip()
-        
+
         if not secret:
             flash("Secret cannot be empty", "error")
             return redirect(url_for('edit_user', user_id=user_id))
-        
+
         target_key['name'] = name
         target_key['cipher'] = cipher
         target_key['secret'] = secret
-        
+
         # Update expiration date
         if expire_date:
             target_key['expire_date'] = expire_date
         else:
             # Remove expiration date if empty
             target_key.pop('expire_date', None)
-        
+
         set_keys(config, keys)
         save_config(config)
         restart_server_process()
-        
+
         flash(f"User {user_id} updated and Server Restarted!")
     except Exception as e:
         flash(f"Error updating user: {e}", "error")
@@ -631,10 +704,10 @@ def delete_user(user_id):
     try:
         config = load_config()
         keys = get_keys(config)
-        
+
         original_count = len(keys)
         keys = [k for k in keys if int(k.get('id', 0)) != user_id]
-        
+
         if len(keys) == original_count:
             flash(f"User {user_id} not found", "error")
         else:
@@ -652,7 +725,7 @@ def get_client_config(user_id):
         config = load_config()
         keys = get_keys(config)
         target_key = next((k for k in keys if int(k.get('id', 0)) == user_id), None)
-        
+
         if not target_key:
             return "User not found", 404
 
@@ -670,25 +743,25 @@ def api_get_client_key():
     """API endpoint to retrieve client key by password/secret only"""
     try:
         key_param = request.args.get('key', '').strip()
-        
+
         if not key_param:
             return jsonify({'error': 'Missing key parameter. Use /api?key=password'}), 400
-        
+
         config = load_config()
         keys = get_keys(config)
-        
+
         # Only match by secret/password (more secure)
         target_key = next((k for k in keys if k.get('secret', '') == key_param), None)
-        
+
         if not target_key:
             return jsonify({'error': 'User not found. Invalid password/secret.'}), 404
-        
+
         # Generate client YAML
         yaml_text = generate_client_yaml(target_key)
-        
+
         # Return as plain text YAML (can be used directly by clients)
         return yaml_text, 200, {'Content-Type': 'text/yaml; charset=utf-8'}
-        
+
     except Exception as e:
         return jsonify({'error': f'Error retrieving client key: {str(e)}'}), 500
 
