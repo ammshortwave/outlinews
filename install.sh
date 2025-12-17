@@ -3,8 +3,8 @@
 # --- CONFIGURATION ---
 DOMAIN="line.yfgfiusustgf.cfd"
 SS_PASSWORD="Google1500"
-TCP_PATH="tcp-$(openssl rand -hex 8)"
-UDP_PATH="udp-$(openssl rand -hex 8)"
+TCP_PATH="tcp-ray"
+UDP_PATH="udp-ray"
 LISTEN_PORT="8080"
 # ---------------------
 
