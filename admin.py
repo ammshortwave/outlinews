@@ -13,7 +13,7 @@ from flask import Flask, render_template_string, request, redirect, url_for, fla
 DOMAIN = "line.yfgfiusustgf.cfd"
 # API Domain (separate from client config domain)
 # Leave empty to use the same domain as admin panel, or set a different domain/URL
-API_DOMAIN = "line.yfgfiusustgf.cfd:8443"  # e.g., "https://api.example.com" or "http://192.168.1.100:5000"
+API_DOMAIN = "https://line.yfgfiusustgf.cfd:8443"  # e.g., "https://api.example.com" or "http://192.168.1.100:5000"
 # Paths
 CONFIG_FILE = 'config.yaml'
 BINARY_PATH = './outline-ss-server'
