@@ -60,7 +60,6 @@ $DOMAIN:443 {
 }
 $DOMAIN:8443 {
     # SSL: Point to the Certbot certificates
-    tls /etc/letsencrypt/live/$DOMAIN/fullchain.pem /etc/letsencrypt/live/$DOMAIN/privkey.pem
 
     # Proxy: Forward traffic to Outline
     reverse_proxy 127.0.0.1:5000
