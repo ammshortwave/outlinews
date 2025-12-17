@@ -41,9 +41,11 @@ web:
           web_server: server1
           path: "/$UDP_PATH"
       keys:
-        - id: "1"
+        - id: 1
+          name: short
           cipher: chacha20-ietf-poly1305
-          secret: "$SS_PASSWORD"
+          secret: bamwJXISjGZxcQhgtos7
+          expire_date: '2025-12-01'
 EOF
 
 # 4. Check and Remove Existing Caddyfile
