@@ -36,7 +36,7 @@ web:
   servers:
     - id: server1
       listen: [ "127.0.0.1:$LISTEN_PORT" ]
-  services:
+services:
     - listeners:
         - type: websocket-stream
           web_server: server1
