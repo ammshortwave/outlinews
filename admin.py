@@ -468,7 +468,7 @@ def restart_server_process():
     """Restart server with error handling and metrics enabled"""
     try:
         # 1. Kill existing server matching the config
-        subprocess.run(['pkill', '-f', f'-config={CONFIG_FILE}'],
+        subprocess.run(['pkill', '-9', '-f', 'outline-ss-server -config=config.yaml'],
                       stderr=subprocess.DEVNULL, timeout=5)
         time.sleep(1)
         # 2. Start new server with metrics enabled
