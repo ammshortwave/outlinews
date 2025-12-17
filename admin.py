@@ -10,10 +10,10 @@ from flask import Flask, render_template_string, request, redirect, url_for, fla
 
 # --- CONFIGURATION ---
 # Change this to your actual domain
-DOMAIN = "outline.notification.de5.net" 
+DOMAIN = "line.yfgfiusustgf.cfd"
 # API Domain (separate from client config domain)
 # Leave empty to use the same domain as admin panel, or set a different domain/URL
-API_DOMAIN = "test.com"  # e.g., "https://api.example.com" or "http://192.168.1.100:5000"
+API_DOMAIN = "line.yfgfiusustgf.cfd"  # e.g., "https://api.example.com" or "http://192.168.1.100:5000"
 # Paths
 CONFIG_FILE = 'config.yaml'
 BINARY_PATH = './outline-ss-server'
